@@ -4,7 +4,8 @@ import { db } from '../../firebase/firebaseConfig';
 import Button from '../../components/Button';
 import Modal from '../../components/Modal';
 import Input from '../../components/Input';
-import { Plus, Edit2, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, EyeOff, Database } from 'lucide-react';
+import { seedResources } from '../../data/seedResources';
 
 const ManageResources = () => {
     const [resources, setResources] = useState([]);
@@ -79,6 +80,26 @@ const ManageResources = () => {
         }
     };
 
+    const handleSeed = async () => {
+        if (!window.confirm("This will add 10 sample resources to the database. Continue?")) return;
+        setLoading(true);
+        try {
+            for (const resource of seedResources) {
+                await addDoc(collection(db, 'resources'), {
+                    ...resource,
+                    createdAt: new Date().toISOString()
+                });
+            }
+            alert("Resources added successfully!");
+            fetchResources();
+        } catch (error) {
+            console.error("Error seeding resources:", error);
+            alert("Failed to seed resources.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const toggleVisibility = async (resource) => {
         try {
             await updateDoc(doc(db, 'resources', resource.id), {
@@ -97,10 +118,16 @@ const ManageResources = () => {
         <div className="space-y-8">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-slate-900">Manage Resources</h1>
-                <Button onClick={() => handleOpenModal()}>
-                    <Plus size={20} className="mr-2" />
-                    Add Resource
-                </Button>
+                <div className="flex gap-2">
+                    <Button onClick={handleSeed} variant="secondary">
+                        <Database size={20} className="mr-2" />
+                        Seed Data
+                    </Button>
+                    <Button onClick={() => handleOpenModal()}>
+                        <Plus size={20} className="mr-2" />
+                        Add Resource
+                    </Button>
+                </div>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
