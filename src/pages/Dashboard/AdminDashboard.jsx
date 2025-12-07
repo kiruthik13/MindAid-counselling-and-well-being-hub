@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import Card from '../../components/Card';
 import { Users, Calendar, BookOpen, Clock, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState({
@@ -13,63 +14,64 @@ const AdminDashboard = () => {
     });
     const [recentBookings, setRecentBookings] = useState([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        fetchDashboardData();
+        // Real-time listeners
+        const unsubUsers = onSnapshot(collection(db, 'users'), (snap) => {
+            setStats(prev => ({ ...prev, totalUsers: snap.size }));
+        });
+
+        const unsubCounsellors = onSnapshot(collection(db, 'counsellors'), (snap) => {
+            setStats(prev => ({ ...prev, totalCounsellors: snap.size }));
+        });
+
+        const unsubBookings = onSnapshot(collection(db, 'bookings'), (snap) => {
+            const pending = snap.docs.filter(doc => doc.data().status === 'pending').length;
+            setStats(prev => ({
+                ...prev,
+                totalBookings: snap.size,
+                pendingBookings: pending
+            }));
+        });
+
+        // Recent bookings listener
+        const recentQuery = query(collection(db, 'bookings'), orderBy('createdAt', 'desc'), limit(5));
+        const unsubRecent = onSnapshot(recentQuery, (snap) => {
+            setRecentBookings(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            setLoading(false);
+        });
+
+        return () => {
+            unsubUsers();
+            unsubCounsellors();
+            unsubBookings();
+            unsubRecent();
+        };
     }, []);
 
-    const fetchDashboardData = async () => {
-        try {
-            // Fetch counts (not efficient for large scale, but fine for MVP)
-            const usersSnap = await getDocs(collection(db, 'users'));
-            const counsellorsSnap = await getDocs(collection(db, 'counsellors'));
-            const bookingsSnap = await getDocs(collection(db, 'bookings'));
-
-            const pendingBookingsCount = bookingsSnap.docs.filter(doc => doc.data().status === 'pending').length;
-
-            setStats({
-                totalUsers: usersSnap.size,
-                totalCounsellors: counsellorsSnap.size,
-                totalBookings: bookingsSnap.size,
-                pendingBookings: pendingBookingsCount
-            });
-
-            // Fetch recent bookings
-            const recentBookingsQuery = query(
-                collection(db, 'bookings'),
-                orderBy('createdAt', 'desc'),
-                limit(5)
-            );
-            const recentBookingsSnap = await getDocs(recentBookingsQuery);
-            setRecentBookings(recentBookingsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-
-        } catch (error) {
-            console.error("Error fetching admin dashboard data:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const StatCard = ({ title, value, icon: Icon, color, subtext }) => (
-        <Card className="border-l-4" style={{ borderLeftColor: color }}>
-            <div className="flex items-center justify-between">
-                <div>
-                    <p className="text-sm font-medium text-slate-500">{title}</p>
-                    <h3 className="text-2xl font-bold text-slate-900 mt-1">{loading ? '-' : value}</h3>
-                    {subtext && <p className="text-xs text-slate-400 mt-1">{subtext}</p>}
+    const StatCard = ({ title, value, icon: Icon, color, subtext, onClick }) => (
+        <div onClick={onClick} className={`cursor-pointer transition-transform hover:scale-105`}>
+            <Card className="border-l-4 h-full" style={{ borderLeftColor: color }}>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-sm font-medium text-slate-500">{title}</p>
+                        <h3 className="text-2xl font-bold text-slate-900 mt-1">{loading ? '-' : value}</h3>
+                        {subtext && <p className="text-xs text-slate-400 mt-1">{subtext}</p>}
+                    </div>
+                    <div className={`p-3 rounded-full opacity-10`} style={{ backgroundColor: color }}>
+                        <Icon size={24} style={{ color: color }} />
+                    </div>
                 </div>
-                <div className={`p-3 rounded-full opacity-10`} style={{ backgroundColor: color }}>
-                    <Icon size={24} style={{ color: color }} />
-                </div>
-            </div>
-        </Card>
+            </Card>
+        </div>
     );
 
     return (
         <div className="space-y-8">
             <div>
                 <h1 className="text-3xl font-bold text-slate-900">Admin Dashboard</h1>
-                <p className="text-slate-500 mt-1">Overview of platform activity and performance.</p>
+                <p className="text-slate-500 mt-1">Real-time overview of platform activity.</p>
             </div>
 
             {/* Stats Grid */}
@@ -79,18 +81,21 @@ const AdminDashboard = () => {
                     value={stats.totalUsers}
                     icon={Users}
                     color="#6366f1" // Indigo
+                    onClick={() => navigate('/admin/users')}
                 />
                 <StatCard
                     title="Counsellors"
                     value={stats.totalCounsellors}
                     icon={Users}
                     color="#ec4899" // Pink
+                    onClick={() => navigate('/admin/counsellors')}
                 />
                 <StatCard
                     title="Total Bookings"
                     value={stats.totalBookings}
                     icon={Calendar}
                     color="#8b5cf6" // Purple
+                    onClick={() => navigate('/admin/bookings')}
                 />
                 <StatCard
                     title="Pending Requests"
@@ -98,12 +103,13 @@ const AdminDashboard = () => {
                     icon={Clock}
                     color="#f59e0b" // Amber
                     subtext="Requires attention"
+                    onClick={() => navigate('/admin/bookings')}
                 />
             </div>
 
             {/* Recent Activity */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <Card title="Recent Bookings">
+                <Card title="Recent Bookings" action={<button onClick={() => navigate('/admin/bookings')} className="text-sm text-indigo-600 hover:text-indigo-800">View All</button>}>
                     {loading ? (
                         <div className="py-8 text-center text-slate-500">Loading...</div>
                     ) : recentBookings.length === 0 ? (

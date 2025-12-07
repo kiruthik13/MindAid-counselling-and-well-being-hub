@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/Auth/Login";
 import Register from "../pages/Auth/Register";
+import ForgotPassword from "../pages/Auth/ForgotPassword";
 import ClientDashboard from "../pages/Dashboard/ClientDashboard";
 import AdminDashboard from "../pages/Dashboard/AdminDashboard";
 import Counsellors from "../pages/Counsellors/Counsellors";
@@ -8,6 +9,8 @@ import Resources from "../pages/Resources/Resources";
 import Bookings from "../pages/Bookings/Bookings";
 import ManageCounsellors from "../pages/Dashboard/ManageCounsellors";
 import ManageResources from "../pages/Dashboard/ManageResources";
+import ManageUsers from "../pages/Dashboard/ManageUsers";
+import AdminBookings from "../pages/Dashboard/AdminBookings";
 import ClientLayout from "../layouts/ClientLayout";
 import AdminLayout from "../layouts/AdminLayout";
 import ClientGuard from "../hooks/useClientGuard";
@@ -27,6 +30,7 @@ const AppRoutes = () => {
             {/* Public Routes */}
             {/* Public Routes */}
             <Route path="/test-firebase" element={<TestFirebase />} />
+            <Route path="/auth/forgot-password" element={<ForgotPassword />} />
             <Route path="/auth/login" element={!user ? <Login /> : (role ? <Navigate to={role === 'admin' ? '/admin' : '/dashboard'} /> : <div className="p-10 text-center">Account setup incomplete. Please contact support or register again. <br /><button onClick={() => logout()} className="text-blue-600 underline mt-4">Logout & Try Again</button></div>)} />
             <Route path="/auth/register" element={!user ? <Register /> : (role ? <Navigate to={role === 'admin' ? '/admin' : '/dashboard'} /> : <Navigate to="/auth/login" />)} />
 
@@ -49,6 +53,8 @@ const AppRoutes = () => {
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/admin/counsellors" element={<ManageCounsellors />} />
                     <Route path="/admin/resources" element={<ManageResources />} />
+                    <Route path="/admin/users" element={<ManageUsers />} />
+                    <Route path="/admin/bookings" element={<AdminBookings />} />
                 </Route>
             </Route>
 
