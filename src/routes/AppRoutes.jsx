@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/Auth/Login";
 import Register from "../pages/Auth/Register";
 import ForgotPassword from "../pages/Auth/ForgotPassword";
+import Profile from "../pages/Profile/Profile";
 import ClientDashboard from "../pages/Dashboard/ClientDashboard";
 import AdminDashboard from "../pages/Dashboard/AdminDashboard";
 import Counsellors from "../pages/Counsellors/Counsellors";
@@ -41,6 +42,7 @@ const AppRoutes = () => {
             <Route element={<ClientGuard />}>
                 <Route element={<ClientLayout />}>
                     <Route path="/dashboard" element={<ClientDashboard />} />
+                    <Route path="/profile" element={<Profile />} />
                     <Route path="/counsellors" element={<Counsellors />} />
                     <Route path="/resources" element={<Resources />} />
                     <Route path="/bookings" element={<Bookings />} />

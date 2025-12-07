@@ -39,10 +39,10 @@ const ClientLayout = () => {
 
                         {/* User Profile & Logout */}
                         <div className="hidden md:flex items-center gap-4">
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200">
+                            <Link to="/profile" className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 hover:bg-slate-200 transition-colors">
                                 <User size={16} className="text-slate-500" />
                                 <span className="text-sm font-medium text-slate-700">{user?.name || "User"}</span>
-                            </div>
+                            </Link>
                             <button
                                 onClick={handleLogout}
                                 className="p-2 rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"

@@ -6,7 +6,7 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import Modal from '../../components/Modal';
 import Input from '../../components/Input';
-import { Star, Clock, Globe, DollarSign, Search, Filter } from 'lucide-react';
+import { Star, Clock, Globe, IndianRupee, Search, Filter } from 'lucide-react';
 
 const Counsellors = () => {
     const { user } = useAuth();
@@ -158,8 +158,8 @@ const Counsellors = () => {
                                     <span>{counsellor.languages?.join(', ')}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-sm text-slate-500">
-                                    <DollarSign size={16} />
-                                    <span>${counsellor.fee}/session</span>
+                                    <IndianRupee size={16} />
+                                    <span>₹{counsellor.fee}/session</span>
                                 </div>
                             </div>
 
@@ -201,8 +201,8 @@ const Counsellors = () => {
                                         key={index}
                                         onClick={() => setSelectedSlot(slot)}
                                         className={`p-3 rounded-xl border text-sm transition-all ${selectedSlot === slot
-                                                ? 'border-indigo-600 bg-indigo-50 text-indigo-700 font-medium ring-1 ring-indigo-600'
-                                                : 'border-slate-200 hover:border-indigo-200 hover:bg-slate-50 text-slate-600'
+                                            ? 'border-indigo-600 bg-indigo-50 text-indigo-700 font-medium ring-1 ring-indigo-600'
+                                            : 'border-slate-200 hover:border-indigo-200 hover:bg-slate-50 text-slate-600'
                                             }`}
                                     >
                                         <div className="font-semibold">{slot.day}</div>
@@ -218,15 +218,15 @@ const Counsellors = () => {
                         <div className="bg-slate-50 p-4 rounded-xl space-y-2">
                             <div className="flex justify-between text-sm">
                                 <span className="text-slate-600">Session Fee</span>
-                                <span className="font-medium text-slate-900">${selectedCounsellor?.fee}</span>
+                                <span className="font-medium text-slate-900">₹{selectedCounsellor?.fee}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-slate-600">Platform Fee</span>
-                                <span className="font-medium text-slate-900">$2.00</span>
+                                <span className="font-medium text-slate-900">₹50.00</span>
                             </div>
                             <div className="border-t border-slate-200 pt-2 flex justify-between font-bold text-slate-900">
                                 <span>Total</span>
-                                <span>${(Number(selectedCounsellor?.fee || 0) + 2).toFixed(2)}</span>
+                                <span>₹{(Number(selectedCounsellor?.fee || 0) + 50).toFixed(2)}</span>
                             </div>
                         </div>
 

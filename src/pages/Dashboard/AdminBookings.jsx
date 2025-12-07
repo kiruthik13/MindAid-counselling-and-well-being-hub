@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, orderBy, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import Card from '../../components/Card';
-import { Calendar, Clock, User, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import Modal from '../../components/Modal';
+import { Calendar, Clock, User, CheckCircle, XCircle, AlertCircle, Smile } from 'lucide-react';
 
 const AdminBookings = () => {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all'); // all, pending, confirmed, cancelled
+    const [moodModal, setMoodModal] = useState({ isOpen: false, booking: null });
+    const [moodForm, setMoodForm] = useState({ label: 'Good', note: '' });
 
     useEffect(() => {
         const q = query(collection(db, 'bookings'), orderBy('createdAt', 'desc'));
@@ -38,6 +41,23 @@ const AdminBookings = () => {
         }
     };
 
+    const handleMoodUpdate = async () => {
+        if (!moodModal.booking) return;
+        try {
+            await updateDoc(doc(db, 'bookings', moodModal.booking.id), {
+                moodLabel: moodForm.label,
+                moodNote: moodForm.note,
+                moodUpdatedAt: new Date().toISOString(),
+                status: 'completed'
+            });
+            setMoodModal({ isOpen: false, booking: null });
+            setMoodForm({ label: 'Good', note: '' });
+        } catch (error) {
+            console.error("Error updating mood:", error);
+            alert("Failed to update mood.");
+        }
+    };
+
     const filteredBookings = bookings.filter(b => filter === 'all' || b.status === filter);
 
     const getStatusColor = (status) => {
@@ -63,8 +83,8 @@ const AdminBookings = () => {
                             key={f}
                             onClick={() => setFilter(f)}
                             className={`px-4 py-2 text-sm font-medium rounded-md capitalize transition-colors ${filter === f
-                                    ? 'bg-indigo-50 text-indigo-700'
-                                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                                ? 'bg-indigo-50 text-indigo-700'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                                 }`}
                         >
                             {f}
@@ -129,12 +149,23 @@ const AdminBookings = () => {
                                         </>
                                     )}
                                     {booking.status === 'confirmed' && (
-                                        <button
-                                            onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
-                                            className="flex items-center gap-1 px-3 py-2 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100 transition-colors text-sm font-medium"
-                                        >
-                                            <XCircle size={16} /> Cancel
-                                        </button>
+                                        <>
+                                            <button
+                                                onClick={() => {
+                                                    setMoodModal({ isOpen: true, booking });
+                                                    setMoodForm({ label: booking.moodLabel || 'Good', note: booking.moodNote || '' });
+                                                }}
+                                                className="flex items-center gap-1 px-3 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium"
+                                            >
+                                                <Smile size={16} /> {booking.moodLabel ? 'Update' : 'Record'} Mood
+                                            </button>
+                                            <button
+                                                onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
+                                                className="flex items-center gap-1 px-3 py-2 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100 transition-colors text-sm font-medium"
+                                            >
+                                                <XCircle size={16} /> Cancel
+                                            </button>
+                                        </>
                                     )}
                                 </div>
                             </div>
@@ -142,6 +173,54 @@ const AdminBookings = () => {
                     ))
                 )}
             </div>
+
+            {/* Mood Modal */}
+            <Modal
+                isOpen={moodModal.isOpen}
+                onClose={() => setMoodModal({ isOpen: false, booking: null })}
+                title="Record Session Mood"
+            >
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Mood Label</label>
+                        <select
+                            value={moodForm.label}
+                            onChange={(e) => setMoodForm({ ...moodForm, label: e.target.value })}
+                            className="block w-full px-4 py-3 rounded-xl border border-slate-200 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        >
+                            <option value="Excellent">Excellent</option>
+                            <option value="Good">Good</option>
+                            <option value="Neutral">Neutral</option>
+                            <option value="Low">Low</option>
+                            <option value="Very Low">Very Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Counsellor Note</label>
+                        <textarea
+                            value={moodForm.note}
+                            onChange={(e) => setMoodForm({ ...moodForm, note: e.target.value })}
+                            rows="4"
+                            className="block w-full px-4 py-3 rounded-xl border border-slate-200 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            placeholder="Optional notes about the session..."
+                        ></textarea>
+                    </div>
+                    <div className="flex justify-end gap-3 pt-4">
+                        <button
+                            onClick={() => setMoodModal({ isOpen: false, booking: null })}
+                            className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors text-sm font-medium"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleMoodUpdate}
+                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
+                        >
+                            Save Mood
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 };

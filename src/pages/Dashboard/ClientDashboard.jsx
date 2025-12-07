@@ -4,7 +4,8 @@ import { useAuth } from '../../hooks/useAuth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import Card from '../../components/Card';
-import { Calendar, BookOpen, Users, Activity } from 'lucide-react';
+import { LastMoodCard } from '../../components/dashboard/LastMoodCard';
+import { Calendar, BookOpen, Users } from 'lucide-react';
 
 const ClientDashboard = () => {
     const { user } = useAuth();
@@ -79,17 +80,9 @@ const ClientDashboard = () => {
                     </div>
                 </Card>
 
-                <Card className="border-l-4 border-l-purple-500">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-full bg-purple-50 text-purple-600">
-                            <Activity size={24} />
-                        </div>
-                        <div>
-                            <p className="text-sm text-slate-500 font-medium">Last Mood Check-in</p>
-                            <h3 className="text-2xl font-bold text-slate-900">{stats.moodCheckIn}</h3>
-                        </div>
-                    </div>
-                </Card>
+
+                <LastMoodCard />
+
 
                 <Card className="border-l-4 border-l-pink-500">
                     <div className="flex items-center gap-4">
