@@ -16,7 +16,7 @@ import { useAuth } from "../hooks/useAuth";
 import TestFirebase from "../components/TestFirebase";
 
 const AppRoutes = () => {
-    const { user, role, loading } = useAuth();
+    const { user, role, loading, logout } = useAuth();
 
     if (loading) {
         return <div className="flex items-center justify-center h-screen text-slate-600">Loading...</div>;
@@ -25,9 +25,10 @@ const AppRoutes = () => {
     return (
         <Routes>
             {/* Public Routes */}
+            {/* Public Routes */}
             <Route path="/test-firebase" element={<TestFirebase />} />
-            <Route path="/auth/login" element={!user ? <Login /> : <Navigate to={role === 'admin' ? '/admin' : '/dashboard'} />} />
-            <Route path="/auth/register" element={!user ? <Register /> : <Navigate to={role === 'admin' ? '/admin' : '/dashboard'} />} />
+            <Route path="/auth/login" element={!user ? <Login /> : (role ? <Navigate to={role === 'admin' ? '/admin' : '/dashboard'} /> : <div className="p-10 text-center">Account setup incomplete. Please contact support or register again. <br /><button onClick={() => logout()} className="text-blue-600 underline mt-4">Logout & Try Again</button></div>)} />
+            <Route path="/auth/register" element={!user ? <Register /> : (role ? <Navigate to={role === 'admin' ? '/admin' : '/dashboard'} /> : <Navigate to="/auth/login" />)} />
 
             {/* Root Redirect */}
             <Route path="/" element={<Navigate to={user ? (role === 'admin' ? '/admin' : '/dashboard') : '/auth/login'} />} />
