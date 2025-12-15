@@ -23,7 +23,6 @@ export const LastMoodCard = () => {
             collection(db, "bookings"),
             where("userId", "==", user.uid),
             where("moodLabel", "!=", null),
-            orderBy("moodLabel"),
             orderBy("moodUpdatedAt", "desc"),
             limit(1)
         );
