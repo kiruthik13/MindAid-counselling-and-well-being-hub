@@ -150,23 +150,33 @@ const ManageCounsellors = () => {
 
     return (
         <div className="space-y-8">
+            {/* Header with Gradient */}
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-slate-900">Manage Counsellors</h1>
-                <Button onClick={() => handleOpenModal()}>
-                    <Plus size={20} className="mr-2" />
+                <div>
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent">
+                        Manage Counsellors
+                    </h1>
+                    <p className="text-slate-600 mt-2">Add, edit, and manage counsellor profiles</p>
+                </div>
+                <button
+                    onClick={() => handleOpenModal()}
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/60 hover:scale-105 transition-all duration-300 group"
+                >
+                    <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
                     Add Counsellor
-                </Button>
+                </button>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            {/* Premium Table */}
+            <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-slate-200">
-                        <thead className="bg-slate-50">
+                        <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-1/5">Name</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-2/5">Specialization</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-1/6">Fee</th>
-                                <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider w-1/6">Actions</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider w-1/5">Name</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider w-2/5">Specialization</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider w-1/6">Fee</th>
+                                <th className="px-6 py-4 text-center text-xs font-bold text-indigo-900 uppercase tracking-wider w-1/6">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-slate-200">
