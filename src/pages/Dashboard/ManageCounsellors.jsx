@@ -6,10 +6,12 @@ import Button from '../../components/Button';
 import Modal from '../../components/Modal';
 import Input from '../../components/Input';
 import { Plus, Edit2, Trash2, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const ManageCounsellors = () => {
     const [counsellors, setCounsellors] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
 
@@ -59,7 +61,7 @@ const ManageCounsellors = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        setSubmitting(true);
 
         const dataToSave = {
             ...formData,
@@ -72,30 +74,65 @@ const ManageCounsellors = () => {
         try {
             if (editingId) {
                 await updateDoc(doc(db, 'counsellors', editingId), dataToSave);
+                toast.success(`${dataToSave.name} updated successfully!`);
             } else {
                 await addDoc(collection(db, 'counsellors'), {
                     ...dataToSave,
                     photoUrl: '' // Placeholder
                 });
+                toast.success(`${dataToSave.name} added successfully!`);
             }
             setIsModalOpen(false);
             fetchCounsellors();
         } catch (error) {
             console.error("Error saving counsellor:", error);
-            alert("Failed to save.");
+            toast.error('Failed to save counsellor. Please try again.');
         } finally {
-            setLoading(false);
+            setSubmitting(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this counsellor?")) return;
-        try {
-            await deleteDoc(doc(db, 'counsellors', id));
-            fetchCounsellors();
-        } catch (error) {
-            console.error("Error deleting counsellor:", error);
-        }
+        const counsellorToDelete = counsellors.find(c => c.id === id);
+
+        toast((t) => (
+            <div className="flex flex-col gap-3">
+                <p className="font-medium">Delete {counsellorToDelete?.name}?</p>
+                <p className="text-sm opacity-90">This action cannot be undone.</p>
+                <div className="flex gap-2 justify-end">
+                    <button
+                        onClick={() => toast.dismiss(t.id)}
+                        className="px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            try {
+                                await deleteDoc(doc(db, 'counsellors', id));
+                                toast.success(`${counsellorToDelete?.name} deleted successfully!`);
+                                fetchCounsellors();
+                            } catch (error) {
+                                console.error("Error deleting counsellor:", error);
+                                toast.error('Failed to delete counsellor. Please try again.');
+                            }
+                        }}
+                        className="px-3 py-1.5 bg-white hover:bg-white/90 text-red-600 rounded-lg text-sm font-medium transition-colors"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
+        ), {
+            duration: Infinity,
+            style: {
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                color: '#fff',
+                padding: '16px',
+                maxWidth: '400px',
+            },
+        });
     };
 
     const addSlot = () => {
@@ -126,31 +163,41 @@ const ManageCounsellors = () => {
                     <table className="min-w-full divide-y divide-slate-200">
                         <thead className="bg-slate-50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Specialization</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Fee</th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-1/5">Name</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-2/5">Specialization</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-1/6">Fee</th>
+                                <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider w-1/6">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-slate-200">
                             {counsellors.map((c) => (
-                                <tr key={c.id} className="hover:bg-slate-50">
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                <tr key={c.id} className="hover:bg-slate-50 transition-colors">
+                                    <td className="px-6 py-4">
                                         <div className="text-sm font-medium text-slate-900">{c.name}</div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-slate-500">{c.specialization}</div>
+                                    <td className="px-6 py-4">
+                                        <div className="text-sm text-slate-600 line-clamp-2">{c.specialization}</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-slate-500">${c.fee}</div>
+                                        <div className="text-sm font-semibold text-slate-900">${c.fee}</div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button onClick={() => handleOpenModal(c)} className="text-indigo-600 hover:text-indigo-900 mr-4">
-                                            <Edit2 size={18} />
-                                        </button>
-                                        <button onClick={() => handleDelete(c.id)} className="text-red-600 hover:text-red-900">
-                                            <Trash2 size={18} />
-                                        </button>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="flex items-center justify-center gap-3">
+                                            <button
+                                                onClick={() => handleOpenModal(c)}
+                                                className="inline-flex items-center justify-center p-2 text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-lg transition-all"
+                                                title="Edit Counsellor"
+                                            >
+                                                <Edit2 size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(c.id)}
+                                                className="inline-flex items-center justify-center p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-all"
+                                                title="Delete Counsellor"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -272,7 +319,7 @@ const ManageCounsellors = () => {
 
                     <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
                         <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                        <Button type="submit" isLoading={loading}>Save Counsellor</Button>
+                        <Button type="submit" isLoading={submitting}>Save Counsellor</Button>
                     </div>
                 </form>
             </Modal>

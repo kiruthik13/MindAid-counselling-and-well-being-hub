@@ -4,6 +4,7 @@ import { db } from '../../firebase/firebaseConfig';
 import Card from '../../components/Card';
 import Modal from '../../components/Modal';
 import { Calendar, Clock, User, CheckCircle, XCircle, AlertCircle, Smile } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const AdminBookings = () => {
     const [bookings, setBookings] = useState([]);
@@ -30,14 +31,25 @@ const AdminBookings = () => {
     }, []);
 
     const handleStatusUpdate = async (bookingId, newStatus) => {
-        if (!window.confirm(`Are you sure you want to mark this booking as ${newStatus}?`)) return;
         try {
             await updateDoc(doc(db, 'bookings', bookingId), {
                 status: newStatus
             });
+
+            if (newStatus === 'confirmed') {
+                toast.success('Booking confirmed successfully!');
+            } else if (newStatus === 'cancelled') {
+                toast('Booking has been cancelled', {
+                    icon: '❌',
+                    style: {
+                        background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                        color: '#fff',
+                    },
+                });
+            }
         } catch (error) {
             console.error("Error updating booking status:", error);
-            alert("Failed to update status.");
+            toast.error('Failed to update booking status. Please try again.');
         }
     };
 
@@ -50,11 +62,14 @@ const AdminBookings = () => {
                 moodUpdatedAt: new Date().toISOString(),
                 status: 'completed'
             });
+
+            toast.success(`Mood "${moodForm.label}" recorded successfully for ${moodModal.booking.userName}!`);
+
             setMoodModal({ isOpen: false, booking: null });
             setMoodForm({ label: 'Good', note: '' });
         } catch (error) {
             console.error("Error updating mood:", error);
-            alert("Failed to update mood.");
+            toast.error('Failed to record mood. Please try again.');
         }
     };
 
@@ -127,11 +142,29 @@ const AdminBookings = () => {
                                             <div className="text-xs text-slate-400 mt-2">
                                                 Booked on {new Date(booking.createdAt).toLocaleString()}
                                             </div>
+                                            {booking.moodLabel && (
+                                                <div className="flex items-center gap-1 text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-md">
+                                                    <Smile size={12} />
+                                                    <span>Mood: {booking.moodLabel}</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-2 self-end md:self-center">
+                                <div className="flex items-center gap-2 self-end md:self-center flex-wrap">
+                                    {/* Mood button - available for all bookings */}
+                                    <button
+                                        onClick={() => {
+                                            setMoodModal({ isOpen: true, booking });
+                                            setMoodForm({ label: booking.moodLabel || 'Good', note: booking.moodNote || '' });
+                                        }}
+                                        className="flex items-center gap-1 px-3 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium"
+                                    >
+                                        <Smile size={16} /> {booking.moodLabel ? 'Edit' : 'Record'} Mood
+                                    </button>
+
+                                    {/* Status-specific actions */}
                                     {booking.status === 'pending' && (
                                         <>
                                             <button
@@ -149,23 +182,12 @@ const AdminBookings = () => {
                                         </>
                                     )}
                                     {booking.status === 'confirmed' && (
-                                        <>
-                                            <button
-                                                onClick={() => {
-                                                    setMoodModal({ isOpen: true, booking });
-                                                    setMoodForm({ label: booking.moodLabel || 'Good', note: booking.moodNote || '' });
-                                                }}
-                                                className="flex items-center gap-1 px-3 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium"
-                                            >
-                                                <Smile size={16} /> {booking.moodLabel ? 'Update' : 'Record'} Mood
-                                            </button>
-                                            <button
-                                                onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
-                                                className="flex items-center gap-1 px-3 py-2 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100 transition-colors text-sm font-medium"
-                                            >
-                                                <XCircle size={16} /> Cancel
-                                            </button>
-                                        </>
+                                        <button
+                                            onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
+                                            className="flex items-center gap-1 px-3 py-2 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100 transition-colors text-sm font-medium"
+                                        >
+                                            <XCircle size={16} /> Cancel
+                                        </button>
                                     )}
                                 </div>
                             </div>

@@ -19,28 +19,44 @@ export const LastMoodCard = () => {
     useEffect(() => {
         if (!user) return;
 
+        // Query all bookings for this user, then filter for mood in memory
+        // This avoids needing a composite index for where + orderBy on different fields
         const q = query(
             collection(db, "bookings"),
-            where("userId", "==", user.uid),
-            where("moodLabel", "!=", null),
-            orderBy("moodUpdatedAt", "desc"),
-            limit(1)
+            where("userId", "==", user.uid)
         );
 
         // Real-time listener - updates automatically when counsellor records mood
         const unsubscribe = onSnapshot(q, (snap) => {
-            if (!snap.empty) {
-                const data = snap.docs[0].data();
+            console.log("LastMoodCard: Fetched bookings count:", snap.size);
+
+            // Filter bookings that have mood data and sort by moodUpdatedAt
+            const bookingsWithMood = snap.docs
+                .map(doc => ({ id: doc.id, ...doc.data() }))
+                .filter(booking => booking.moodLabel && booking.moodUpdatedAt)
+                .sort((a, b) => {
+                    // Sort by moodUpdatedAt descending (most recent first)
+                    const dateA = new Date(a.moodUpdatedAt);
+                    const dateB = new Date(b.moodUpdatedAt);
+                    return dateB - dateA;
+                });
+
+            console.log("LastMoodCard: Bookings with mood:", bookingsWithMood.length);
+
+            if (bookingsWithMood.length > 0) {
+                const latestMood = bookingsWithMood[0];
+                console.log("LastMoodCard: Latest mood:", latestMood.moodLabel, latestMood.moodUpdatedAt);
                 setMood({
-                    label: data.moodLabel,
-                    note: data.moodNote || "",
+                    label: latestMood.moodLabel,
+                    note: latestMood.moodNote || "",
                 });
             } else {
+                console.log("LastMoodCard: No mood data found");
                 setMood(null);
             }
             setLoading(false);
         }, (error) => {
-            console.error("Error loading last mood", error);
+            console.error("Error loading last mood:", error);
             setMood(null);
             setLoading(false);
         });

@@ -1,37 +1,35 @@
 export const seedResources = [
     {
-        title: "5-Minute Calm Breathing Exercise",
-        type: "audio",
-        category: "Breathwork",
+        title: "Stress Management Techniques",
+        type: "article",
+        category: "Stress",
         isVisible: true,
-        description: "A short guided breathing session designed to quickly reduce stress and relax your nervous system. Ideal for anxiety, panic, and mental reset.",
-        url: "https://www.youtube.com/watch?v=aNXKjGFUlMs"
+        description: "Includes scientifically backed strategies such as reframing, relaxation, and boundary setting.",
+        url: "https://www.youtube.com/watch?v=hnpQrMqDoqE"
+    },
+    {
+        title: "Panic Relief Grounding Audio",
+        type: "video",
+        category: "Crisis Support",
+        isVisible: true,
+        description: "A calming recorded session to help regulate breathing during panic attacks.",
+        url: "https://www.youtube.com/watch?v=W6B6a0lPvHo"
     },
     {
         title: "5-4-3-2-1 Grounding Method",
-        type: "article",
+        type: "video",
         category: "Anxiety",
         isVisible: true,
         description: "A powerful grounding exercise used by therapists to help regain control during anxiety or overwhelm.",
-        url: "#", // Placeholder as it's an article content
-        content: "Identify 5 things you can see\nIdentify 4 things you can touch\nIdentify 3 things you can hear\nIdentify 2 things you can smell\nIdentify 1 thing you can taste"
-    },
-    {
-        title: "Daily Mood Reflection Template",
-        type: "pdf",
-        category: "Journaling",
-        isVisible: true,
-        description: "A printable or digital worksheet that helps users track emotions, triggers, and coping strategies.",
-        url: "https://www.therapistaid.com/worksheets/daily-mood-chart.pdf"
+        url: "https://www.youtube.com/watch?v=30VMIEmA114"
     },
     {
         title: "Healthy Sleep Habits for Better Mental Health",
-        type: "article",
+        type: "video",
         category: "Sleep",
         isVisible: true,
         description: "A guide explaining simple but effective sleep hygiene techniques—recommended by psychologists.",
-        url: "#",
-        content: "Includes:\nConsistent schedule\nBlue-light reduction\nSleep-friendly environment\nPre-sleep relaxation rituals"
+        url: "https://www.youtube.com/watch?v=nm1TxQj9IsQ"
     },
     {
         title: "10-Minute Mindfulness for Beginners",
@@ -42,43 +40,43 @@ export const seedResources = [
         url: "https://www.youtube.com/watch?v=inpok4MKVLM"
     },
     {
-        title: "Coping Skills for Depression",
-        type: "pdf",
-        category: "Depression",
-        isVisible: true,
-        description: "A therapist-approved coping worksheet with practical strategies for low-mood days.",
-        url: "https://www.therapistaid.com/worksheets/depression-coping-skills.pdf"
-    },
-    {
         title: "Healthy Communication Techniques",
-        type: "article",
+        type: "video",
         category: "Relationships",
         isVisible: true,
         description: "This resource teaches assertiveness, emotional validation, and conflict-resolution skills.",
-        url: "#"
+        url: "https://www.youtube.com/watch?v=Km_I8WMz_bs"
     },
     {
-        title: "Panic Relief Grounding Audio",
-        type: "audio",
-        category: "Crisis Support",
+        title: "Coping Skills for Depression",
+        type: "video",
+        category: "Depression",
         isVisible: true,
-        description: "A calming recorded session to help regulate breathing during panic attacks.",
-        url: "https://www.youtube.com/watch?v=W6B6a0lPvHo"
-    },
-    {
-        title: "Stress Management Techniques",
-        type: "pdf",
-        category: "Stress",
-        isVisible: true,
-        description: "Includes scientifically backed strategies such as reframing, relaxation, and boundary setting.",
-        url: "https://www.therapistaid.com/worksheet/stress-management-skills.pdf"
+        description: "A therapist-approved guide with practical strategies for managing low-mood days and building resilience.",
+        url: "https://www.youtube.com/watch?v=rni41c9iq54"
     },
     {
         title: "7-Day Gratitude Challenge",
-        type: "pdf", // Changed to PDF/Link as it has a URL
+        type: "link",
         category: "Journaling",
         isVisible: true,
         description: "A structured gratitude journal proven to improve mood and emotional resilience.",
         url: "https://positivepsychology.com/gratitude-exercises/"
+    },
+    {
+        title: "Deep Breathing for Anxiety Relief",
+        type: "video",
+        category: "Breathwork",
+        isVisible: true,
+        description: "Learn powerful breathing techniques to calm your nervous system and reduce anxiety in minutes.",
+        url: "https://www.youtube.com/watch?v=aNXKjGFUlMs"
+    },
+    {
+        title: "Understanding and Managing Stress",
+        type: "video",
+        category: "Stress",
+        isVisible: true,
+        description: "Comprehensive guide to understanding stress triggers and developing healthy coping mechanisms.",
+        url: "https://www.youtube.com/watch?v=RcGyVTAoXEU"
     }
 ];

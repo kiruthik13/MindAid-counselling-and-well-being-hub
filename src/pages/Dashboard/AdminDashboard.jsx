@@ -4,6 +4,7 @@ import { db } from '../../firebase/firebaseConfig';
 import Card from '../../components/Card';
 import { Users, Calendar, BookOpen, Clock, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState({
@@ -13,6 +14,7 @@ const AdminDashboard = () => {
         pendingBookings: 0
     });
     const [recentBookings, setRecentBookings] = useState([]);
+    const [analyticsData, setAnalyticsData] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -42,11 +44,49 @@ const AdminDashboard = () => {
             setLoading(false);
         });
 
+        // Analytics data listener - last 7 days booking trends
+        const unsubAnalytics = onSnapshot(collection(db, 'bookings'), (snap) => {
+            // Get last 7 days
+            const last7Days = [];
+            const today = new Date();
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                last7Days.push({
+                    date: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                    fullDate: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                    timestamp: new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime(),
+                    bookings: 0
+                });
+            }
+
+            // Count bookings per day
+            snap.docs.forEach(doc => {
+                const booking = doc.data();
+                if (booking.createdAt) {
+                    const bookingDate = new Date(booking.createdAt);
+                    const bookingTimestamp = new Date(
+                        bookingDate.getFullYear(),
+                        bookingDate.getMonth(),
+                        bookingDate.getDate()
+                    ).getTime();
+
+                    const dayIndex = last7Days.findIndex(day => day.timestamp === bookingTimestamp);
+                    if (dayIndex !== -1) {
+                        last7Days[dayIndex].bookings++;
+                    }
+                }
+            });
+
+            setAnalyticsData(last7Days);
+        });
+
         return () => {
             unsubUsers();
             unsubCounsellors();
             unsubBookings();
             unsubRecent();
+            unsubAnalytics();
         };
     }, []);
 
@@ -129,8 +169,8 @@ const AdminDashboard = () => {
                                     </div>
                                     <div className="text-right">
                                         <span className={`text-xs px-2 py-1 rounded-full font-medium capitalize ${booking.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                                                booking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
-                                                    'bg-slate-100 text-slate-600'
+                                            booking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                                                'bg-slate-100 text-slate-600'
                                             }`}>
                                             {booking.status}
                                         </span>
@@ -144,13 +184,61 @@ const AdminDashboard = () => {
                     )}
                 </Card>
 
-                <Card title="Platform Health">
-                    <div className="flex items-center justify-center h-64 text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                        <div className="text-center">
-                            <TrendingUp size={32} className="mx-auto mb-2 opacity-50" />
-                            <p>Analytics Chart Placeholder</p>
+                <Card title="Platform Health" subtitle="Booking trends over the last 7 days">
+                    {loading ? (
+                        <div className="flex items-center justify-center h-64 text-slate-400">
+                            <div className="text-center">
+                                <TrendingUp size={32} className="mx-auto mb-2 opacity-50 animate-pulse" />
+                                <p>Loading analytics...</p>
+                            </div>
                         </div>
-                    </div>
+                    ) : analyticsData.length === 0 ? (
+                        <div className="flex items-center justify-center h-64 text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                            <div className="text-center">
+                                <TrendingUp size={32} className="mx-auto mb-2 opacity-50" />
+                                <p>No data available</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <ResponsiveContainer width="100%" height={300}>
+                            <LineChart data={analyticsData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                                <XAxis
+                                    dataKey="date"
+                                    stroke="#64748b"
+                                    style={{ fontSize: '12px' }}
+                                />
+                                <YAxis
+                                    stroke="#64748b"
+                                    style={{ fontSize: '12px' }}
+                                    allowDecimals={false}
+                                />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: '#fff',
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: '8px',
+                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                                    }}
+                                    labelFormatter={(value, payload) => {
+                                        if (payload && payload[0]) {
+                                            return payload[0].payload.fullDate;
+                                        }
+                                        return value;
+                                    }}
+                                    formatter={(value) => [value, 'Bookings']}
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="bookings"
+                                    stroke="#6366f1"
+                                    strokeWidth={3}
+                                    dot={{ fill: '#6366f1', strokeWidth: 2, r: 4 }}
+                                    activeDot={{ r: 6, fill: '#4f46e5' }}
+                                />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    )}
                 </Card>
             </div>
         </div>
