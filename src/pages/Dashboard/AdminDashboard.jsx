@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import Card from '../../components/Card';
-import { Users, Calendar, BookOpen, Clock, TrendingUp } from 'lucide-react';
+import { Users, Calendar, BookOpen, Clock, TrendingUp, Activity, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState({
@@ -126,18 +126,26 @@ const AdminDashboard = () => {
     );
 
     return (
-        <div className="space-y-8">
-            {/* Header with Gradient */}
+        <div className="space-y-8 animate-[fade-in_0.5s_ease-out]">
+            {/* Premium Header with Gradient */}
             <div className="relative">
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent">
-                    Admin Dashboard
-                </h1>
-                <p className="text-slate-600 mt-2 text-lg">Real-time overview of platform activity</p>
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">
+                        <Activity size={24} className="animate-pulse" />
+                    </div>
+                    <h1 className="text-4xl font-bold gradient-text-ocean">
+                        Admin Dashboard
+                    </h1>
+                </div>
+                <p className="text-slate-600 text-lg flex items-center gap-2">
+                    <Zap size={16} className="text-yellow-500" />
+                    Real-time overview of platform activity
+                </p>
                 <div className="absolute -top-2 -left-2 w-20 h-20 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-2xl"></div>
             </div>
 
-            {/* Stats Grid with Premium Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Stats Grid with Premium Cards - Staggered Animation */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children">
                 <StatCard
                     title="Total Users"
                     value={stats.totalUsers}
@@ -172,25 +180,26 @@ const AdminDashboard = () => {
             {/* Recent Activity with Premium Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Recent Bookings Card */}
-                <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div className="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+                <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 animate-[scale-in_0.4s_ease-out]">
+                    <div className="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
                         <div className="flex justify-between items-center">
                             <div>
-                                <h3 className="text-lg font-semibold bg-gradient-to-r from-indigo-900 to-purple-900 bg-clip-text text-transparent">Recent Bookings</h3>
+                                <h3 className="text-lg font-bold gradient-text">Recent Bookings</h3>
                                 <p className="text-sm text-slate-600 mt-0.5">Latest booking requests</p>
                             </div>
                             <button
                                 onClick={() => navigate('/admin/bookings')}
-                                className="text-sm font-medium text-indigo-600 hover:text-indigo-800 px-3 py-1.5 rounded-lg hover:bg-indigo-50 transition-colors"
+                                className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 px-4 py-2 rounded-lg hover:bg-indigo-50 transition-all hover:scale-105"
                             >
-                                View All
+                                View All →
                             </button>
                         </div>
                     </div>
                     <div className="p-6">
                         {loading ? (
                             <div className="py-8 text-center text-slate-500">
-                                <div className="animate-pulse">Loading...</div>
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-2"></div>
+                                <p className="text-sm">Loading...</p>
                             </div>
                         ) : recentBookings.length === 0 ? (
                             <div className="py-8 text-center text-slate-500">No recent bookings found.</div>
@@ -199,10 +208,11 @@ const AdminDashboard = () => {
                                 {recentBookings.map(booking => (
                                     <div
                                         key={booking.id}
-                                        className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-indigo-50/30 rounded-xl hover:from-indigo-50 hover:to-purple-50 transition-all duration-300 group border border-transparent hover:border-indigo-100"
+                                        className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-indigo-50/30 rounded-xl hover:from-indigo-50 hover:to-purple-50 transition-all duration-300 group border border-transparent hover:border-indigo-200 cursor-pointer"
+                                        onClick={() => navigate('/admin/bookings')}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md group-hover:scale-110 transition-transform duration-300">
+                                            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                                                 {booking.userName?.[0] || 'U'}
                                             </div>
                                             <div>
@@ -212,10 +222,10 @@ const AdminDashboard = () => {
                                         </div>
                                         <div className="text-right">
                                             <span className={`inline-block text-xs px-3 py-1.5 rounded-full font-semibold capitalize shadow-sm ${booking.status === 'pending'
-                                                ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-yellow-200' :
-                                                booking.status === 'confirmed'
-                                                    ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-green-200' :
-                                                    'bg-gradient-to-r from-slate-400 to-slate-500 text-white shadow-slate-200'
+                                                    ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-yellow-200'
+                                                    : booking.status === 'confirmed'
+                                                        ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-green-200'
+                                                        : 'bg-gradient-to-r from-slate-400 to-slate-500 text-white shadow-slate-200'
                                                 }`}>
                                                 {booking.status}
                                             </span>
@@ -230,11 +240,11 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* Platform Health Analytics Chart */}
-                <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div className="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-purple-50 to-indigo-50">
+                {/* Enhanced Platform Health Analytics Chart */}
+                <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 animate-[scale-in_0.4s_ease-out_0.1s] opacity-0 [animation-fill-mode:forwards]">
+                    <div className="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-purple-50 via-indigo-50 to-blue-50">
                         <div>
-                            <h3 className="text-lg font-semibold bg-gradient-to-r from-purple-900 to-indigo-900 bg-clip-text text-transparent">Platform Health</h3>
+                            <h3 className="text-lg font-bold gradient-text-warm">Platform Health</h3>
                             <p className="text-sm text-slate-600 mt-0.5">Booking trends over the last 7 days</p>
                         </div>
                     </div>
@@ -255,24 +265,31 @@ const AdminDashboard = () => {
                             </div>
                         ) : (
                             <ResponsiveContainer width="100%" height={300}>
-                                <LineChart data={analyticsData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                                <AreaChart data={analyticsData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                                    <defs>
+                                        <linearGradient id="colorBookings" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                                     <XAxis
                                         dataKey="date"
                                         stroke="#64748b"
-                                        style={{ fontSize: '12px' }}
+                                        style={{ fontSize: '12px', fontWeight: '500' }}
                                     />
                                     <YAxis
                                         stroke="#64748b"
-                                        style={{ fontSize: '12px' }}
+                                        style={{ fontSize: '12px', fontWeight: '500' }}
                                         allowDecimals={false}
                                     />
                                     <Tooltip
                                         contentStyle={{
                                             backgroundColor: '#fff',
                                             border: '1px solid #e2e8f0',
-                                            borderRadius: '8px',
-                                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                                            borderRadius: '12px',
+                                            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+                                            padding: '12px'
                                         }}
                                         labelFormatter={(value, payload) => {
                                             if (payload && payload[0]) {
@@ -282,15 +299,16 @@ const AdminDashboard = () => {
                                         }}
                                         formatter={(value) => [value, 'Bookings']}
                                     />
-                                    <Line
+                                    <Area
                                         type="monotone"
                                         dataKey="bookings"
                                         stroke="#6366f1"
                                         strokeWidth={3}
+                                        fill="url(#colorBookings)"
                                         dot={{ fill: '#6366f1', strokeWidth: 2, r: 4 }}
-                                        activeDot={{ r: 6, fill: '#4f46e5' }}
+                                        activeDot={{ r: 6, fill: '#4f46e5', stroke: '#fff', strokeWidth: 2 }}
                                     />
-                                </LineChart>
+                                </AreaChart>
                             </ResponsiveContainer>
                         )}
                     </div>

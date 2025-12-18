@@ -1,8 +1,24 @@
 import React from 'react';
 
-const Card = ({ children, className = '', title, subtitle, action }) => {
+const Card = ({
+    children,
+    className = '',
+    title,
+    subtitle,
+    action,
+    variant = 'default', // default, glass, gradient-border
+    hover = true
+}) => {
+    const variants = {
+        default: 'bg-white border border-slate-100',
+        glass: 'glass-card',
+        'gradient-border': 'bg-white gradient-border'
+    };
+
+    const hoverClass = hover ? 'hover-lift' : '';
+
     return (
-        <div className={`bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden ${className}`}>
+        <div className={`rounded-2xl shadow-sm overflow-hidden transition-all duration-200 ${variants[variant]} ${hoverClass} ${className}`}>
             {(title || subtitle || action) && (
                 <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
                     <div>
@@ -20,3 +36,4 @@ const Card = ({ children, className = '', title, subtitle, action }) => {
 };
 
 export default Card;
+

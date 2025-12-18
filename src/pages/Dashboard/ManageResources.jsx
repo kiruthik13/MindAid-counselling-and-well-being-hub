@@ -115,67 +115,85 @@ const ManageResources = () => {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 animate-[fade-in_0.5s_ease-out]">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-slate-900">Manage Resources</h1>
-                <div className="flex gap-2">
-                    <Button onClick={handleSeed} variant="secondary">
+                <div>
+                    <h1 className="text-4xl font-bold gradient-text-warm">Manage Resources</h1>
+                    <p className="text-slate-600 mt-2 text-lg">Curate mental health resources for clients</p>
+                </div>
+                <div className="flex gap-3">
+                    <Button onClick={handleSeed} variant="secondary" className="shadow-md hover:shadow-lg">
                         <Database size={20} className="mr-2" />
                         Seed Data
                     </Button>
-                    <Button onClick={() => handleOpenModal()}>
+                    <Button onClick={() => handleOpenModal()} variant="gradient" className="shadow-lg hover:shadow-xl">
                         <Plus size={20} className="mr-2" />
                         Add Resource
                     </Button>
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-slate-200">
-                        <thead className="bg-slate-50">
+                        <thead className="bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Title</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Type</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Category</th>
-                                <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Visible</th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-purple-900 uppercase tracking-wider">Title</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-purple-900 uppercase tracking-wider">Type</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-purple-900 uppercase tracking-wider">Category</th>
+                                <th className="px-6 py-4 text-center text-xs font-bold text-purple-900 uppercase tracking-wider">Visible</th>
+                                <th className="px-6 py-4 text-right text-xs font-bold text-purple-900 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-slate-200">
                             {resources.map((r) => (
-                                <tr key={r.id} className="hover:bg-slate-50">
+                                <tr key={r.id} className="hover:bg-gradient-to-r hover:from-purple-50/30 hover:to-pink-50/30 transition-all duration-200 group">
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-slate-900">{r.title}</div>
+                                        <div className="text-sm font-semibold text-slate-900">{r.title}</div>
                                         <div className="text-xs text-slate-500 truncate max-w-xs">{r.url}</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-600 uppercase">
+                                        <span className="px-3 py-1.5 text-xs font-bold rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 uppercase shadow-sm">
                                             {r.type}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-slate-500">{r.category}</div>
+                                        <div className="text-sm text-slate-600 font-medium">{r.category}</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                                        <button onClick={() => toggleVisibility(r)} className={`text-slate-400 hover:text-indigo-600 ${r.isVisible ? 'text-indigo-600' : ''}`}>
+                                        <button
+                                            onClick={() => toggleVisibility(r)}
+                                            className={`p-2 rounded-lg transition-all hover:scale-110 ${r.isVisible
+                                                    ? 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100'
+                                                    : 'text-slate-400 bg-slate-50 hover:bg-slate-100'
+                                                }`}
+                                        >
                                             {r.isVisible ? <Eye size={18} /> : <EyeOff size={18} />}
                                         </button>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button onClick={() => handleOpenModal(r)} className="text-indigo-600 hover:text-indigo-900 mr-4">
-                                            <Edit2 size={18} />
-                                        </button>
-                                        <button onClick={() => handleDelete(r.id)} className="text-red-600 hover:text-red-900">
-                                            <Trash2 size={18} />
-                                        </button>
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => handleOpenModal(r)}
+                                                className="p-2 text-indigo-600 hover:text-white bg-indigo-50 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 rounded-lg transition-all hover:scale-110 shadow-sm"
+                                            >
+                                                <Edit2 size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(r.id)}
+                                                className="p-2 text-red-600 hover:text-white bg-red-50 hover:bg-gradient-to-r hover:from-red-600 hover:to-rose-600 rounded-lg transition-all hover:scale-110 shadow-sm"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
                             {resources.length === 0 && !loading && (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-8 text-center text-slate-500">
-                                        No resources found.
+                                    <td colSpan="5" className="px-6 py-12 text-center text-slate-500">
+                                        <BookOpen className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+                                        <p>No resources found.</p>
                                     </td>
                                 </tr>
                             )}
@@ -188,6 +206,7 @@ const ManageResources = () => {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 title={editingId ? "Edit Resource" : "Add New Resource"}
+                gradientHeader={true}
             >
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <Input

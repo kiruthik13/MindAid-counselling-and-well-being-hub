@@ -5,7 +5,7 @@ import { db } from '../../firebase/firebaseConfig';
 import Card from '../../components/Card';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-import { User, Mail, Phone, MapPin, Save, Loader } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Save, Loader, Award } from 'lucide-react';
 
 const Profile = () => {
     const { user } = useAuth();
@@ -76,22 +76,27 @@ const Profile = () => {
     }
 
     return (
-        <div className="max-w-2xl mx-auto space-y-8">
+        <div className="max-w-3xl mx-auto space-y-8 animate-[fade-in_0.5s_ease-out]">
             <div>
-                <h1 className="text-3xl font-bold text-slate-900">My Profile</h1>
-                <p className="text-slate-500 mt-1">Manage your personal information.</p>
+                <h1 className="text-4xl font-bold gradient-text">My Profile</h1>
+                <p className="text-slate-600 mt-2 text-lg">Manage your personal information and preferences.</p>
             </div>
 
-            <Card>
+            <Card variant="glass" className="backdrop-blur-xl">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="flex items-center gap-6 mb-8">
-                        <div className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-3xl">
-                            {formData.name?.[0]?.toUpperCase() || <User size={32} />}
+                    <div className="flex items-center gap-6 mb-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl">
+                        <div className="relative">
+                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-4xl shadow-xl ring-4 ring-white pulse-glow">
+                                {formData.name?.[0]?.toUpperCase() || <User size={40} />}
+                            </div>
+                            <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
+                                <Award size={16} className="text-white" />
+                            </div>
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-slate-900">{formData.name}</h2>
-                            <p className="text-slate-500">{formData.email}</p>
-                            <span className="inline-block mt-2 px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full capitalize">
+                            <h2 className="text-2xl font-bold text-slate-900 mb-1">{formData.name}</h2>
+                            <p className="text-slate-600 mb-2">{formData.email}</p>
+                            <span className="inline-block px-4 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold rounded-full capitalize shadow-md">
                                 {user?.role || 'Client'}
                             </span>
                         </div>
@@ -112,7 +117,7 @@ const Profile = () => {
                             value={formData.email}
                             disabled
                             icon={Mail}
-                            className="bg-slate-50 text-slate-500 cursor-not-allowed"
+                            className="opacity-75"
                         />
                         <Input
                             label="Phone Number"
@@ -133,19 +138,19 @@ const Profile = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Bio / Notes</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Bio / Notes</label>
                         <textarea
                             name="bio"
                             value={formData.bio}
                             onChange={handleChange}
                             rows="4"
-                            className="block w-full px-4 py-3 rounded-xl border border-slate-200 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="block w-full px-4 py-3 rounded-xl border-2 border-slate-200 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all"
                             placeholder="Tell us a bit about yourself..."
                         ></textarea>
                     </div>
 
-                    <div className="flex justify-end pt-4">
-                        <Button type="submit" isLoading={loading}>
+                    <div className="flex justify-end pt-6 border-t border-slate-200">
+                        <Button type="submit" isLoading={loading} variant="gradient" className="px-8">
                             <Save size={18} className="mr-2" />
                             Save Changes
                         </Button>

@@ -4,7 +4,7 @@ import { db } from '../../firebase/firebaseConfig';
 import { useAuth } from '../../hooks/useAuth';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
-import { Calendar, Clock, User, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, User, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
 
 const Bookings = () => {
     const { user } = useAuth();
@@ -82,40 +82,49 @@ const Bookings = () => {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 animate-[fade-in_0.5s_ease-out]">
             <div>
-                <h1 className="text-3xl font-bold text-slate-900">My Bookings</h1>
-                <p className="text-slate-500 mt-1">Manage your sessions and view history.</p>
+                <h1 className="text-4xl font-bold gradient-text">My Bookings</h1>
+                <p className="text-slate-600 mt-2 text-lg">Manage your sessions and view history.</p>
             </div>
 
-            {/* Tabs */}
-            <div className="flex border-b border-slate-200">
+            {/* Premium Tabs */}
+            <div className="flex border-b-2 border-slate-200 relative">
                 <button
                     onClick={() => setActiveTab('upcoming')}
-                    className={`px-6 py-3 font-medium text-sm transition-colors border-b-2 ${activeTab === 'upcoming'
-                            ? 'border-indigo-600 text-indigo-600'
-                            : 'border-transparent text-slate-500 hover:text-slate-700'
+                    className={`px-8 py-4 font-semibold text-sm transition-all relative ${activeTab === 'upcoming'
+                        ? 'text-indigo-600'
+                        : 'text-slate-500 hover:text-slate-700'
                         }`}
                 >
                     Upcoming
+                    {activeTab === 'upcoming' && (
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full"></div>
+                    )}
                 </button>
                 <button
                     onClick={() => setActiveTab('past')}
-                    className={`px-6 py-3 font-medium text-sm transition-colors border-b-2 ${activeTab === 'past'
-                            ? 'border-indigo-600 text-indigo-600'
-                            : 'border-transparent text-slate-500 hover:text-slate-700'
+                    className={`px-8 py-4 font-semibold text-sm transition-all relative ${activeTab === 'past'
+                        ? 'text-indigo-600'
+                        : 'text-slate-500 hover:text-slate-700'
                         }`}
                 >
                     Past
+                    {activeTab === 'past' && (
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full"></div>
+                    )}
                 </button>
                 <button
                     onClick={() => setActiveTab('cancelled')}
-                    className={`px-6 py-3 font-medium text-sm transition-colors border-b-2 ${activeTab === 'cancelled'
-                            ? 'border-indigo-600 text-indigo-600'
-                            : 'border-transparent text-slate-500 hover:text-slate-700'
+                    className={`px-8 py-4 font-semibold text-sm transition-all relative ${activeTab === 'cancelled'
+                        ? 'text-indigo-600'
+                        : 'text-slate-500 hover:text-slate-700'
                         }`}
                 >
                     Cancelled
+                    {activeTab === 'cancelled' && (
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full"></div>
+                    )}
                 </button>
             </div>
 
@@ -124,29 +133,31 @@ const Bookings = () => {
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
                 </div>
             ) : filteredBookings.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-2xl border border-slate-100">
+                <Card variant="glass" className="text-center py-12">
                     <Calendar className="mx-auto h-12 w-12 text-slate-300 mb-3" />
                     <p className="text-slate-500">No {activeTab} bookings found.</p>
-                </div>
+                </Card>
             ) : (
-                <div className="space-y-4">
+                <div className="space-y-4 stagger-children">
                     {filteredBookings.map(booking => (
-                        <Card key={booking.id} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <Card key={booking.id} variant="gradient-border" className="flex flex-col md:flex-row md:items-center justify-between gap-4 group">
                             <div className="flex items-start gap-4">
-                                <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600 hidden md:block">
+                                <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg hidden md:block group-hover:scale-110 transition-transform">
                                     <Calendar size={24} />
                                 </div>
                                 <div>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <h3 className="font-semibold text-slate-900">{booking.counsellorName}</h3>
-                                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${getStatusColor(booking.status)}`}>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <h3 className="font-bold text-slate-900 text-lg">{booking.counsellorName}</h3>
+                                        <span className={`text-xs px-3 py-1.5 rounded-full font-bold capitalize flex items-center gap-1 ${getStatusColor(booking.status)}`}>
+                                            {booking.status === 'confirmed' && <CheckCircle2 size={12} />}
+                                            {booking.status === 'cancelled' && <XCircle size={12} />}
                                             {booking.status}
                                         </span>
                                     </div>
-                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
-                                        <div className="flex items-center gap-1">
-                                            <Clock size={14} />
-                                            <span>{booking.slot?.day}, {booking.slot?.from} - {booking.slot?.to}</span>
+                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600">
+                                        <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg">
+                                            <Clock size={14} className="text-indigo-500" />
+                                            <span className="font-medium">{booking.slot?.day}, {booking.slot?.from} - {booking.slot?.to}</span>
                                         </div>
                                         {/* <div className="flex items-center gap-1">
                       <User size={14} />

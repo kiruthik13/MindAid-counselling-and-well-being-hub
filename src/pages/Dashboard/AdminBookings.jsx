@@ -3,7 +3,7 @@ import { collection, onSnapshot, query, orderBy, updateDoc, doc } from 'firebase
 import { db } from '../../firebase/firebaseConfig';
 import Card from '../../components/Card';
 import Modal from '../../components/Modal';
-import { Calendar, Clock, User, CheckCircle, XCircle, AlertCircle, Smile } from 'lucide-react';
+import { Calendar, Clock, User, CheckCircle, XCircle, AlertCircle, Smile, Filter, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const AdminBookings = () => {
@@ -85,21 +85,22 @@ const AdminBookings = () => {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 animate-[fade-in_0.5s_ease-out]">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900">All Bookings</h1>
-                    <p className="text-slate-500 mt-1">Manage all client bookings.</p>
+                    <h1 className="text-4xl font-bold gradient-text">All Bookings</h1>
+                    <p className="text-slate-600 mt-2 text-lg">Manage all client bookings and sessions.</p>
                 </div>
 
-                <div className="flex bg-white rounded-lg p-1 shadow-sm border border-slate-200">
+                {/* Premium Filter Pills */}
+                <div className="flex bg-white rounded-xl p-1.5 shadow-lg border-2 border-slate-100">
                     {['all', 'pending', 'confirmed', 'cancelled'].map((f) => (
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
-                            className={`px-4 py-2 text-sm font-medium rounded-md capitalize transition-colors ${filter === f
-                                ? 'bg-indigo-50 text-indigo-700'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                            className={`px-5 py-2.5 text-sm font-semibold rounded-lg capitalize transition-all duration-300 ${filter === f
+                                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md scale-105'
+                                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                                 }`}
                         >
                             {f}
@@ -108,44 +109,76 @@ const AdminBookings = () => {
                 </div>
             </div>
 
-            <div className="grid gap-4">
+            {/* Stats Summary Bar */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
+                    <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide">Total</p>
+                    <p className="text-2xl font-bold text-indigo-900 mt-1">{bookings.length}</p>
+                </div>
+                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-100">
+                    <p className="text-xs font-semibold text-yellow-600 uppercase tracking-wide">Pending</p>
+                    <p className="text-2xl font-bold text-yellow-900 mt-1">{bookings.filter(b => b.status === 'pending').length}</p>
+                </div>
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
+                    <p className="text-xs font-semibold text-green-600 uppercase tracking-wide">Confirmed</p>
+                    <p className="text-2xl font-bold text-green-900 mt-1">{bookings.filter(b => b.status === 'confirmed').length}</p>
+                </div>
+                <div className="bg-gradient-to-br from-slate-50 to-gray-50 rounded-xl p-4 border border-slate-100">
+                    <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Cancelled</p>
+                    <p className="text-2xl font-bold text-slate-900 mt-1">{bookings.filter(b => b.status === 'cancelled').length}</p>
+                </div>
+            </div>
+
+            <div className="grid gap-4 stagger-children">
                 {loading ? (
-                    <div className="text-center py-12 text-slate-500">Loading bookings...</div>
+                    <Card variant="glass" className="text-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-3"></div>
+                        <p className="text-slate-500">Loading bookings...</p>
+                    </Card>
                 ) : filteredBookings.length === 0 ? (
-                    <div className="text-center py-12 text-slate-500 bg-white rounded-2xl border border-slate-100">
-                        No bookings found for this filter.
-                    </div>
+                    <Card variant="glass" className="text-center py-12">
+                        <Calendar className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+                        <p className="text-slate-500">No bookings found for this filter.</p>
+                    </Card>
                 ) : (
                     filteredBookings.map((booking) => (
-                        <Card key={booking.id} className="hover:shadow-md transition-shadow">
+                        <Card key={booking.id} variant="gradient-border" className="hover:shadow-xl transition-all group">
                             <div className="flex flex-col md:flex-row justify-between gap-4">
                                 <div className="flex items-start gap-4">
-                                    <div className={`p-3 rounded-full ${getStatusColor(booking.status)} bg-opacity-20`}>
+                                    <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all">
                                         <Calendar size={24} />
                                     </div>
                                     <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <h3 className="font-bold text-slate-900">{booking.counsellorName}</h3>
-                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(booking.status)}`}>
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <h3 className="font-bold text-slate-900 text-lg">{booking.counsellorName}</h3>
+                                            <span className={`px-3 py-1.5 rounded-full text-xs font-bold capitalize shadow-md flex items-center gap-1 ${booking.status === 'pending'
+                                                    ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white'
+                                                    : booking.status === 'confirmed'
+                                                        ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white'
+                                                        : 'bg-gradient-to-r from-slate-400 to-slate-500 text-white'
+                                                }`}>
+                                                {booking.status === 'confirmed' && <CheckCircle size={12} />}
+                                                {booking.status === 'cancelled' && <XCircle size={12} />}
+                                                {booking.status === 'pending' && <Clock size={12} />}
                                                 {booking.status}
                                             </span>
                                         </div>
-                                        <div className="space-y-1 text-sm text-slate-600">
-                                            <div className="flex items-center gap-2">
-                                                <User size={14} />
+                                        <div className="space-y-2 text-sm text-slate-600">
+                                            <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-lg w-fit">
+                                                <User size={14} className="text-indigo-500" />
                                                 <span>Client: <strong>{booking.userName}</strong> ({booking.userEmail})</span>
                                             </div>
-                                            <div className="flex items-center gap-2">
-                                                <Clock size={14} />
-                                                <span>{booking.slot?.day} at {booking.slot?.from} - {booking.slot?.to}</span>
+                                            <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-lg w-fit">
+                                                <Clock size={14} className="text-purple-500" />
+                                                <span className="font-medium">{booking.slot?.day} at {booking.slot?.from} - {booking.slot?.to}</span>
                                             </div>
                                             <div className="text-xs text-slate-400 mt-2">
                                                 Booked on {new Date(booking.createdAt).toLocaleString()}
                                             </div>
                                             {booking.moodLabel && (
-                                                <div className="flex items-center gap-1 text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-md">
-                                                    <Smile size={12} />
-                                                    <span>Mood: {booking.moodLabel}</span>
+                                                <div className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 px-3 py-1.5 rounded-lg w-fit border border-purple-200">
+                                                    <Smile size={14} />
+                                                    <span className="font-semibold">Mood: {booking.moodLabel}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -159,7 +192,7 @@ const AdminBookings = () => {
                                             setMoodModal({ isOpen: true, booking });
                                             setMoodForm({ label: booking.moodLabel || 'Good', note: booking.moodNote || '' });
                                         }}
-                                        className="flex items-center gap-1 px-3 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium"
+                                        className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 rounded-lg hover:from-purple-100 hover:to-pink-100 transition-all text-sm font-semibold border border-purple-200 hover:scale-105"
                                     >
                                         <Smile size={16} /> {booking.moodLabel ? 'Edit' : 'Record'} Mood
                                     </button>
@@ -169,13 +202,13 @@ const AdminBookings = () => {
                                         <>
                                             <button
                                                 onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
-                                                className="flex items-center gap-1 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium"
+                                                className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all text-sm font-semibold shadow-md hover:scale-105"
                                             >
                                                 <CheckCircle size={16} /> Confirm
                                             </button>
                                             <button
                                                 onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
-                                                className="flex items-center gap-1 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
+                                                className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-lg hover:from-red-600 hover:to-rose-700 transition-all text-sm font-semibold shadow-md hover:scale-105"
                                             >
                                                 <XCircle size={16} /> Reject
                                             </button>
@@ -184,7 +217,7 @@ const AdminBookings = () => {
                                     {booking.status === 'confirmed' && (
                                         <button
                                             onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
-                                            className="flex items-center gap-1 px-3 py-2 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100 transition-colors text-sm font-medium"
+                                            className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-all text-sm font-semibold hover:scale-105"
                                         >
                                             <XCircle size={16} /> Cancel
                                         </button>
@@ -196,11 +229,12 @@ const AdminBookings = () => {
                 )}
             </div>
 
-            {/* Mood Modal */}
+            {/* Enhanced Mood Modal */}
             <Modal
                 isOpen={moodModal.isOpen}
                 onClose={() => setMoodModal({ isOpen: false, booking: null })}
                 title="Record Session Mood"
+                gradientHeader={true}
             >
                 <div className="space-y-4">
                     <div>

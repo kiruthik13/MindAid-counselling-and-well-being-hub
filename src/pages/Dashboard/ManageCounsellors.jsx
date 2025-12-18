@@ -149,14 +149,14 @@ const ManageCounsellors = () => {
     };
 
     return (
-        <div className="space-y-8">
-            {/* Header with Gradient */}
+        <div className="space-y-8 animate-[fade-in_0.5s_ease-out]">
+            {/* Premium Header with Gradient */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent">
+                    <h1 className="text-4xl font-bold gradient-text-ocean">
                         Manage Counsellors
                     </h1>
-                    <p className="text-slate-600 mt-2">Add, edit, and manage counsellor profiles</p>
+                    <p className="text-slate-600 mt-2 text-lg">Add, edit, and manage counsellor profiles</p>
                 </div>
                 <button
                     onClick={() => handleOpenModal()}
@@ -168,10 +168,10 @@ const ManageCounsellors = () => {
             </div>
 
             {/* Premium Table */}
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-slate-200">
-                        <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
+                        <thead className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
                             <tr>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider w-1/5">Name</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider w-2/5">Specialization</th>
@@ -181,28 +181,33 @@ const ManageCounsellors = () => {
                         </thead>
                         <tbody className="bg-white divide-y divide-slate-200">
                             {counsellors.map((c) => (
-                                <tr key={c.id} className="hover:bg-slate-50 transition-colors">
+                                <tr key={c.id} className="hover:bg-gradient-to-r hover:from-indigo-50/50 hover:to-purple-50/50 transition-all duration-200 group">
                                     <td className="px-6 py-4">
-                                        <div className="text-sm font-medium text-slate-900">{c.name}</div>
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md group-hover:scale-110 transition-transform">
+                                                {c.name[0]}
+                                            </div>
+                                            <div className="text-sm font-semibold text-slate-900">{c.name}</div>
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="text-sm text-slate-600 line-clamp-2">{c.specialization}</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-semibold text-slate-900">${c.fee}</div>
+                                        <div className="text-sm font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">${c.fee}</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center justify-center gap-3">
+                                        <div className="flex items-center justify-center gap-2">
                                             <button
                                                 onClick={() => handleOpenModal(c)}
-                                                className="inline-flex items-center justify-center p-2 text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-lg transition-all"
+                                                className="inline-flex items-center justify-center p-2.5 text-indigo-600 hover:text-white bg-indigo-50 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 rounded-lg transition-all hover:scale-110 shadow-sm hover:shadow-md"
                                                 title="Edit Counsellor"
                                             >
                                                 <Edit2 size={18} />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(c.id)}
-                                                className="inline-flex items-center justify-center p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-all"
+                                                className="inline-flex items-center justify-center p-2.5 text-red-600 hover:text-white bg-red-50 hover:bg-gradient-to-r hover:from-red-600 hover:to-rose-600 rounded-lg transition-all hover:scale-110 shadow-sm hover:shadow-md"
                                                 title="Delete Counsellor"
                                             >
                                                 <Trash2 size={18} />
@@ -213,8 +218,9 @@ const ManageCounsellors = () => {
                             ))}
                             {counsellors.length === 0 && !loading && (
                                 <tr>
-                                    <td colSpan="4" className="px-6 py-8 text-center text-slate-500">
-                                        No counsellors found. Add one to get started.
+                                    <td colSpan="4" className="px-6 py-12 text-center text-slate-500">
+                                        <Users className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+                                        <p>No counsellors found. Add one to get started.</p>
                                     </td>
                                 </tr>
                             )}
@@ -228,6 +234,7 @@ const ManageCounsellors = () => {
                 onClose={() => setIsModalOpen(false)}
                 title={editingId ? "Edit Counsellor" : "Add New Counsellor"}
                 maxWidth="max-w-2xl"
+                gradientHeader={true}
             >
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

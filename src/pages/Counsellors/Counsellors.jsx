@@ -6,7 +6,7 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import Modal from '../../components/Modal';
 import Input from '../../components/Input';
-import { Star, Clock, Globe, IndianRupee, Search, Filter } from 'lucide-react';
+import { Star, Clock, Globe, IndianRupee, Search, Filter, Award, CheckCircle } from 'lucide-react';
 
 const Counsellors = () => {
     const { user } = useAuth();
@@ -86,26 +86,26 @@ const Counsellors = () => {
     });
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 animate-[fade-in_0.5s_ease-out]">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900">Find a Counsellor</h1>
-                    <p className="text-slate-500 mt-1">Connect with professional support tailored to you.</p>
+                    <h1 className="text-4xl font-bold gradient-text-ocean">Find Your Counsellor</h1>
+                    <p className="text-slate-600 mt-2 text-lg">Connect with professional support tailored to your needs.</p>
                 </div>
 
-                {/* Search/Filter Bar */}
+                {/* Premium Search/Filter Bar */}
                 <div className="flex gap-2 w-full md:w-auto">
-                    <div className="relative flex-1 md:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                    <div className="relative flex-1 md:w-72 group">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
                         <input
                             type="text"
                             placeholder="Search by name or specialty..."
-                            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                            className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all shadow-sm focus:shadow-lg"
                             value={filters.search}
                             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                         />
                     </div>
-                    <button className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">
+                    <button className="p-3 rounded-xl border-2 border-slate-200 bg-white text-slate-600 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:border-indigo-300 transition-all">
                         <Filter size={20} />
                     </button>
                 </div>
@@ -117,56 +117,61 @@ const Counsellors = () => {
                     <p className="mt-4 text-slate-500">Loading counsellors...</p>
                 </div>
             ) : filteredCounsellors.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-2xl border border-slate-100">
+                <Card variant="glass" className="text-center py-12">
                     <p className="text-slate-500">No counsellors found matching your criteria.</p>
-                </div>
+                </Card>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
                     {filteredCounsellors.map(counsellor => (
-                        <Card key={counsellor.id} className="flex flex-col h-full hover:shadow-md transition-shadow">
+                        <Card key={counsellor.id} variant="gradient-border" className="flex flex-col h-full group cursor-pointer">
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-full bg-slate-200 overflow-hidden">
+                                    <div className="relative w-14 h-14 rounded-full overflow-hidden ring-2 ring-indigo-100 group-hover:ring-4 group-hover:ring-indigo-300 transition-all">
                                         {counsellor.photoUrl ? (
                                             <img src={counsellor.photoUrl} alt={counsellor.name} className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-600 font-bold text-xl">
+                                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold text-xl">
                                                 {counsellor.name[0]}
                                             </div>
                                         )}
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-slate-900">{counsellor.name}</h3>
-                                        <p className="text-sm text-indigo-600 font-medium">{counsellor.specialization}</p>
+                                        <h3 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{counsellor.name}</h3>
+                                        <p className="text-sm text-indigo-600 font-medium flex items-center gap-1">
+                                            <Award size={14} />
+                                            {counsellor.specialization}
+                                        </p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-lg">
-                                    <Star size={14} className="text-yellow-500 fill-yellow-500" />
+                                <div className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-orange-50 px-2.5 py-1.5 rounded-lg shadow-sm">
+                                    <Star size={14} className="text-yellow-500 fill-yellow-500 animate-pulse" />
                                     <span className="text-xs font-bold text-yellow-700">{counsellor.rating || 'New'}</span>
                                 </div>
                             </div>
 
-                            <p className="text-slate-600 text-sm mb-4 line-clamp-2 flex-grow">{counsellor.bio}</p>
+                            <p className="text-slate-600 text-sm mb-4 line-clamp-2 flex-grow leading-relaxed">{counsellor.bio}</p>
 
-                            <div className="space-y-2 mb-6">
-                                <div className="flex items-center gap-2 text-sm text-slate-500">
-                                    <Clock size={16} />
-                                    <span>{counsellor.experienceYears} years experience</span>
+                            <div className="space-y-2.5 mb-6">
+                                <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 px-3 py-2 rounded-lg">
+                                    <Clock size={16} className="text-indigo-500" />
+                                    <span className="font-medium">{counsellor.experienceYears} years experience</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-slate-500">
-                                    <Globe size={16} />
-                                    <span>{counsellor.languages?.join(', ')}</span>
+                                <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 px-3 py-2 rounded-lg">
+                                    <Globe size={16} className="text-purple-500" />
+                                    <span className="font-medium">{counsellor.languages?.join(', ')}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-slate-500">
-                                    <IndianRupee size={16} />
-                                    <span>₹{counsellor.fee}/session</span>
+                                <div className="flex items-center gap-2 text-sm text-slate-600 bg-gradient-to-r from-green-50 to-emerald-50 px-3 py-2 rounded-lg">
+                                    <IndianRupee size={16} className="text-green-600" />
+                                    <span className="font-bold text-green-700">₹{counsellor.fee}/session</span>
                                 </div>
                             </div>
 
                             <Button
                                 onClick={() => handleBookClick(counsellor)}
-                                className="w-full mt-auto"
+                                className="w-full mt-auto group-hover:scale-105 transition-transform"
+                                variant="gradient"
                             >
+                                <CheckCircle size={18} className="mr-2" />
                                 View Availability
                             </Button>
                         </Card>
